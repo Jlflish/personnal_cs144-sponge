@@ -17,13 +17,13 @@ class ByteStream {
     // all, but if any of your tests are taking longer than a second,
     // that's a sign that you probably want to keep exploring
     // different approaches.
-    std::vector<char> buffer_stream;
-    size_t written_cnt{};
-    size_t read_cnt{};
-    size_t total_capacity;
-    size_t current_size{};
-    size_t head{}, tail{};
-    bool input_ended_flag{};
+    std::vector<char> _buffer_stream;
+    size_t _written_cnt{};
+    size_t _read_cnt{};
+    size_t _total_capacity;
+    size_t _current_size{};
+    size_t _head{}, _tail{};
+    bool _input_ended_flag{};
     bool _error{};  //!< Flag indicating that the stream suffered an error.
 
   public:

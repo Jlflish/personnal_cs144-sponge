@@ -12,8 +12,8 @@ void DUMMY_CODE(Targs &&... /* unused */) {}
 
 using namespace std;
 
-StreamReassembler::StreamReassembler(const size_t capacity) : _next(capacity + 1), _output(capacity), _capacity(capacity) {
-    iota(_next.begin(), _next.end(), 0);
+StreamReassembler::StreamReassembler(const size_t capacity) : _next(),  _filled_stream(capacity, {' ', false}), _output(capacity), _capacity(capacity) {
+    _next.set();
 }
 
 //! \details This function accepts a substring (aka a segment) of bytes,
@@ -21,17 +21,35 @@ StreamReassembler::StreamReassembler(const size_t capacity) : _next(capacity + 1
 //! contiguous substrings and writes them into the output stream in order.
 
 size_t StreamReassembler::find(size_t pos) {
-    if (_next[pos] == pos) {
+    if (_next[pos]) {
         return pos;
     }
-    return _next[pos] = find(_next[pos]);
+    return _next._Find_next(pos);
 }
 
 void StreamReassembler::push_substring(const string &data, const size_t index, const bool eof) {
-    
-    DUMMY_CODE(data, index, eof);
+    if (eof) _end_index = index + data.size(); 
+    for (size_t i = find(index); i != _capacity && i - index < data.size(); i = find(i)) {
+        _filled_stream[i] = make_pair(data[i - index], true);
+        _unassembled_byte_cnt++;
+        _next.reset(i);
+    }
+
+    string _add;
+    while (_current_pos < _end_index && _filled_stream[_current_pos].second) { 
+        _add += _filled_stream[_current_pos].first;
+        _filled_stream[_current_pos].second = false;
+        _next.set(_current_pos);
+        _unassembled_byte_cnt--;
+        _current_pos++;
+    }
+    _output.write(_add);
+
+    if (_current_pos == _end_index) {
+        _output.end_input();
+    }
 }
 
-size_t StreamReassembler::unassembled_bytes() const { return {}; }
+size_t StreamReassembler::unassembled_bytes() const { return _unassembled_byte_cnt; }
 
-bool StreamReassembler::empty() const { return {}; }
+bool StreamReassembler::empty() const { return _unassembled_byte_cnt == 0; }

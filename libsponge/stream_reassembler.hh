@@ -7,6 +7,9 @@
 #include <string>
 #include <vector>
 #include <numeric>
+#include <limits>
+#include <iostream>
+#include <bitset>
 
 //! \brief A class that assembles a series of excerpts from a byte stream (possibly out of order,
 //! possibly overlapping) into an in-order byte stream.
@@ -14,7 +17,11 @@ class StreamReassembler {
   private:
     // Your code here -- add private members as necessary.
     
-    std::vector<size_t> _next;
+    std::bitset<10000000> _next;
+    std::vector<std::pair<char, bool>> _filled_stream;
+    size_t _end_index = std::numeric_limits<size_t>::max();
+    size_t _current_pos = {};
+    size_t _unassembled_byte_cnt = {};
     ByteStream _output;  //!< The reassembled in-order byte stream
     size_t _capacity;    //!< The maximum number of bytes
 
