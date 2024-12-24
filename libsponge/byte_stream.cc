@@ -15,12 +15,12 @@ using namespace std;
 ByteStream::ByteStream(const size_t capacity) : buffer_stream(capacity), total_capacity(capacity) {
 
 }
-
+#include <iostream>
 size_t ByteStream::write(const string &data) {
-    const size_t put_size = min(total_capacity - current_size, data.size());
-    for (int i = 0; i < put_size; i++) {
+    const size_t put_size = min(remaining_capacity(), data.size());
+    for (size_t i = 0; i < put_size; i++) {
         buffer_stream[tail] = data[i];
-        tail = tail == total_capacity ? 0 : tail + 1; 
+        tail = tail + 1 == total_capacity ? 0 : tail + 1; 
     }
     current_size += put_size;
     written_cnt += put_size;
@@ -31,9 +31,9 @@ size_t ByteStream::write(const string &data) {
 string ByteStream::peek_output(const size_t len) const {
     const size_t copy_size = min(current_size, len);
     string copy_result;
-    for (int i = 0, j = head; i < copy_size; i++) {
+    for (size_t i = 0, j = head; i < copy_size; i++) {
         copy_result += buffer_stream[j];
-        j = j == total_capacity ? 0 : j + 1;
+        j = j + 1 == total_capacity ? 0 : j + 1;
     }
     return copy_result;
 }
@@ -41,25 +41,17 @@ string ByteStream::peek_output(const size_t len) const {
 //! \param[in] len bytes will be removed from the output side of the buffer
 void ByteStream::pop_output(const size_t len) {
     const size_t pop_size = min(current_size, len);
-    head += pop_size;
-    if (head >= total_capacity) {
-        head -= total_capacity;
-    }
+    head = (head + pop_size) % total_capacity;
     current_size -= pop_size;
+    read_cnt += pop_size;
 }
 
 //! Read (i.e., copy and then pop) the next "len" bytes of the stream
 //! \param[in] len bytes will be popped and returned
 //! \returns a string
 std::string ByteStream::read(const size_t len) {
-    const size_t read_size = min(read_size, len);
-    string read_result;
-    for (int i = 0, j = head; i < read_size; i++) {
-        read_result += buffer_stream[j];
-        j = j == total_capacity ? 0 : j + 1;
-    }
-    pop_output(read_size);
-    read_cnt += read_size;
+    const string read_result = peek_output(len);
+    pop_output(len);
     return read_result;
 }
 
@@ -67,7 +59,7 @@ void ByteStream::end_input() { input_ended_flag = true; }
 
 bool ByteStream::input_ended() const { return input_ended_flag; }
 
-size_t ByteStream::buffer_size() const { return total_capacity; }
+size_t ByteStream::buffer_size() const { return current_size; }
 
 bool ByteStream::buffer_empty() const { return current_size == 0; }
 
