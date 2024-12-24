@@ -14,7 +14,7 @@ class StreamReassembler {
   private:
     // Your code here -- add private members as necessary.
     
-    std::vector<int> _next;
+    std::vector<size_t> _next;
     ByteStream _output;  //!< The reassembled in-order byte stream
     size_t _capacity;    //!< The maximum number of bytes
 
@@ -49,6 +49,9 @@ class StreamReassembler {
     //! \brief Is the internal state empty (other than the output stream)?
     //! \returns `true` if no substrings are waiting to be assembled
     bool empty() const;
+
+    //! find nest unfilled postition of Bytestream
+    size_t find(size_t pos);
 };
 
 #endif  // SPONGE_LIBSPONGE_STREAM_REASSEMBLER_HH
