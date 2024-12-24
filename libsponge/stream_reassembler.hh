@@ -17,7 +17,6 @@ class StreamReassembler {
   private:
     // Your code here -- add private members as necessary.
     
-    std::bitset<10000000> _next;
     std::vector<std::pair<char, bool>> _filled_stream;
     size_t _end_index = std::numeric_limits<size_t>::max();
     size_t _current_pos = {};
@@ -56,9 +55,6 @@ class StreamReassembler {
     //! \brief Is the internal state empty (other than the output stream)?
     //! \returns `true` if no substrings are waiting to be assembled
     bool empty() const;
-
-    //! find nest unfilled postition of Bytestream
-    size_t find(size_t pos);
 };
 
 #endif  // SPONGE_LIBSPONGE_STREAM_REASSEMBLER_HH
