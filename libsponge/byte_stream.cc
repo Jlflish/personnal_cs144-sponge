@@ -15,7 +15,6 @@ using namespace std;
 ByteStream::ByteStream(const size_t capacity) : buffer_stream(capacity), total_capacity(capacity) {
 
 }
-#include <iostream>
 size_t ByteStream::write(const string &data) {
     const size_t put_size = min(remaining_capacity(), data.size());
     for (size_t i = 0; i < put_size; i++) {
