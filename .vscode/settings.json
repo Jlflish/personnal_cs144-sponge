@@ -64,6 +64,12 @@
         "format": "cpp",
         "__nullptr": "cpp",
         "__hash_table": "cpp",
-        "ranges": "cpp"
+        "ranges": "cpp",
+        "cerrno": "cpp",
+        "climits": "cpp",
+        "ios": "cpp",
+        "locale": "cpp",
+        "queue": "cpp",
+        "cinttypes": "cpp"
     }
 }
