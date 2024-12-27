@@ -23,27 +23,26 @@ TCPSender::TCPSender(const size_t capacity, const uint16_t retx_timeout, const s
     , _stream(capacity) 
     , _ackno(0) {}
 
-uint64_t TCPSender::bytes_in_flight() const { return {}; }
+uint64_t TCPSender::bytes_in_flight() const { return _used_sequence_space; }
 
 void TCPSender::fill_window() {
     TCPSegment output;
     auto header = output.header();
     auto payload = output.payload();
-    size_t output_size = {};
+    bool first_flag = {};
     if (!_SYN_flag) {
-        output_size += 1;
-        header.syn = true;
+        first_flag = header.syn = true;
     }
     const size_t buffer_size = _stream.buffer_size();
     size_t _size;
-    if (TCPConfig::MAX_PAYLOAD_SIZE > buffer_size + output_size) {
-        _size = TCPConfig::MAX_PAYLOAD_SIZE - output_size;
-    } else if (TCPConfig::MAX_PAYLOAD_SIZE == buffer_size + output_size) {
+    if (TCPConfig::MAX_PAYLOAD_SIZE > buffer_size + (first_flag)) {
+        _size = TCPConfig::MAX_PAYLOAD_SIZE - (first_flag);
+    } else if (TCPConfig::MAX_PAYLOAD_SIZE == buffer_size + (first_flag)) {
         _size = buffer_size - 1;
     } else {
         _size = buffer_size;
     }
-
+    
     if (_size == buffer_size) {
         header.fin = true;
     }
@@ -51,12 +50,16 @@ void TCPSender::fill_window() {
     _next_seqno += _size;
 
     payload = Buffer(_stream.read(_size));
-    _segments_out.push(output);
+    _used_sequence_space += output.length_in_sequence_space();
+    _segments_out.push(move(output));
 }
 
 //! \param ackno The remote receiver's ackno (acknowledgment number)
 //! \param window_size The remote receiver's advertised window size
-void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_size) { DUMMY_CODE(ackno, window_size); }
+void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_size) {
+
+    DUMMY_CODE(ackno, window_size); 
+}
 
 //! \param[in] ms_since_last_tick the number of milliseconds since the last call to this method
 void TCPSender::tick(const size_t ms_since_last_tick) { DUMMY_CODE(ms_since_last_tick); }

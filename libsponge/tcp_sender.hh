@@ -41,6 +41,9 @@ class TCPSender {
     //! the flag of ackno recieved from TCPReciever
     bool _ACK_flag{};
 
+    //! the sequence space has used
+    size_t _used_sequence_space{};
+
   public:
     //! Initialize a TCPSender
     TCPSender(const size_t capacity = TCPConfig::DEFAULT_CAPACITY,
